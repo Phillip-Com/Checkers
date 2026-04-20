@@ -16,6 +16,10 @@ def start_cli(ui):
             if command == "quit":
                 break
 
+            elif command == "end":
+                ui.state = "end"
+                ui.default_result = "Test Test"
+
             elif command.startswith("player"):
                 try:
                     _, number = command.split()
@@ -56,37 +60,37 @@ def start_cli(ui):
                         ui.turn = -1
 
                         if ui.mode == "1p":
-                            finish, winner = end_game(board)
+                            finish, winner = end_game(board, 1, 2)
                             if finish:
-                                ui.result_text = winner
-                                ui.state = end
+                                ui.default_result = winner
+                                ui.state = "end"
                                 break
                             print("Computer turn")
                             time.sleep(1.5)
                             board = comp_moves(board, -1)
                             ui.update_board(board)
                             ui.turn = 1
-                            finish, winner = end_game(board)
+                            finish, winner = end_game(board, -1,-2)
                             if finish:
-                                ui.result_text = winner
-                                ui.state = end
+                                ui.default_result = winner
+                                ui.state = "end"
                                 break
                             print("Player 1 turn")
 
                     elif ui.turn == -1 and ui.mode == "2p":
-                        finish, winner = end_game(board)
+                        finish, winner = end_game(board, -1, -2)
                         if finish:
-                            ui.result_text = winner
-                            ui.state = end
+                            ui.default_result = winner
+                            ui.state = "end"
                             break
                         print("Player 2 turn")
                         board = move_piece(board, start, end)
                         ui.update_board(board)
                         ui.turn = 1
-                        finish, winner = end_game(board)
+                        finish, winner = end_game(board, 1, 2)
                         if finish:
-                            ui.result_text = winner
-                            ui.state = end
+                            ui.default_result = winner
+                            ui.state = "end"
                             break
                         print("Player 1 turn")
 

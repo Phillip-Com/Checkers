@@ -28,7 +28,7 @@ def build_board():
     return self
 
 # Function to check if game is ended
-def end_game(self):
+def end_game(self, piece, two_piece):
     red_pieces = 0
     blue_pieces = 0
 
@@ -44,6 +44,16 @@ def end_game(self):
         return True, "Blue Wins!"
     if blue_pieces == 0:
         return True, "Red Wins!"
+
+    legal_moves = all_moves(self, piece)
+    legal_moves += all_moves(self, two_piece)
+
+    if legal_moves == []:
+        if piece == 1:
+            winner = "Blue"
+        else:
+            winner = "Red"
+        return True, f"Blocked, {winner} Wins!"
 
     return False, ""
 
@@ -133,15 +143,35 @@ def move_piece(board, position, target):
         while capture_from(board, current_x, current_y):
             next_moves = move_options(board, coord_to_string(current_x, current_y))
 
-            next_moves = [(r,c) for r, c in next_moves if abs(r - current_x) == 2]
+            if next_moves.__len__() > 1:
+                print("More then one Jump choice")
+                count = -1
 
-            if not next_moves:
-                break
+                for x, y in next_moves:
+                    choices = coord_to_string(x,y)
+                    count = count + 1
+                    print(f"{count}: {choices}")
 
-            next_x, next_y = next_moves[0]
 
-            mid_x = (current_x + next_x) //2
+                command = input(">> ").strip().lower()
+                moves = next_moves[int(command)]
+                next_x, next_y = moves[0],moves[1]
+
+            else:
+                next_moves = [(r,c) for r, c in next_moves if abs(r - current_x) == 2]
+
+                if not next_moves:
+                    break
+
+                next_x, next_y = next_moves[0]
+
+            mid_x = (current_x + next_x) // 2
             mid_y = (current_y + next_y) // 2
+
+            start = coord_to_string(current_x, current_y)
+            end = coord_to_string(next_x, next_y)
+
+            print(f"Piece continued jumping: {start} -> {end}")
 
             board[mid_x][mid_y] = 0
             board[current_x][current_y] = 0
