@@ -1,24 +1,41 @@
 import threading
 from UI import GameUI
-from Logic import build_board, move_piece, comp_moves, convert_cords, end_game
+from Logic import build_board, move_piece, comp_moves, end_game, convert_cords
 import time
 
 def start_cli(ui):
     def cli_loop():
-        board = ui.board
+        play = ui.board
 
         print("Checkers CLI ready!")
-        print("Commands: move A3 B4 | restart | show | quit")
+        print("Commands: "
+              "\n\thelp | (Display this list of commands)"
+              "\n\tmove A3 B4 | (Move a piece from start to target)"
+              "\n\trestart | (Reset the board to starting position)"
+              "\n\tmenu | (Return to the main menu)"
+              "\n\tquit | (Stop the program)")
 
         while True:
             command = input(">> ").strip().lower()
 
             if command == "quit":
+                ui.should_close = True
                 break
 
-            elif command == "end":
-                ui.state = "end"
-                ui.default_result = "Test Test"
+            elif command == "help":
+                print("Commands: "
+                      "\n\thelp | (Display this list of commands)"
+                      "\n\tmove A3 B4 | (Move a piece from start to target)"
+                      "\n\trestart | (Reset the board to starting position)"
+                      "\n\tmenu | (Return to the main menu)"
+                      "\n\tquit | (Stop the program)")
+
+            elif command == "restart":
+                ui.state = "game"
+                ui.turn = 1
+                play = build_board()
+                ui.update_board(play)
+                print("---Board reset---\n\n")
 
             elif command.startswith("player"):
                 try:
@@ -26,79 +43,80 @@ def start_cli(ui):
 
                     if int(number) == 1:
                         ui.mode = "1p"
-                        ui.state = "game"
-                        print("Player 1 turn")
                     else:
                         ui.mode = "2p"
-                        ui.state = "game"
-                        print("Player 1 turn")
+                    ui.state = "game"
+                    print("Player 1 turn")
 
                 except Exception as e:
                     print("Error:", e)
 
-            elif command == "restart":
-                board = build_board()
-                ui.update_board(board)
+            elif command == "menu":
                 ui.state = "menu"
+                play = build_board()
+                ui.update_board(play)
                 ui.turn = 1
 
             elif ui.state != "game":
                 print("Game not started. Use the menu.")
                 continue
 
+            elif command == "show":
+                print(play)
+
             elif command.startswith("move"):
                 try:
-                    _, start, end = command.split()
-
-                    if ui.mode == "2p":
-                        row, col = convert_cords(start)
-                        piece = ui.board[row][col]
+                    checked = True
+                    while checked:
+                        _, start, end = command.split()
+                        check_x, check_y = convert_cords(start)
+                        check_piece = play[check_x][check_y]
+                        if check_piece == ui.turn or check_piece == (ui.turn * 2):
+                            checked = False
+                        else:
+                            print("Piece targeted is not yours")
+                            command = input(">> ").strip().lower()
 
                     if ui.turn == 1:
-                        board = move_piece(board, start, end)
-                        ui.update_board(board)
+                        if ui.mode == "2p":
+                            print("\nPlayer 2 Turn")
+                        play = move_piece(play, start, end, 1)
+                        ui.update_board(play)
                         ui.turn = -1
 
                         if ui.mode == "1p":
-                            finish, winner = end_game(board, 1, 2)
+                            finish, winner = end_game(play, 1, 2)
                             if finish:
                                 ui.default_result = winner
                                 ui.state = "end"
-                                break
                             print("Computer turn")
                             time.sleep(1.5)
-                            board = comp_moves(board, -1)
-                            ui.update_board(board)
+                            play = comp_moves(play, -1)
+                            ui.update_board(play)
                             ui.turn = 1
-                            finish, winner = end_game(board, -1,-2)
+                            finish, winner = end_game(play, -1,-2)
                             if finish:
                                 ui.default_result = winner
                                 ui.state = "end"
-                                break
                             print("Player 1 turn")
 
                     elif ui.turn == -1 and ui.mode == "2p":
-                        finish, winner = end_game(board, -1, -2)
+                        finish, winner = end_game(play, -1, -2)
                         if finish:
                             ui.default_result = winner
                             ui.state = "end"
-                            break
-                        print("Player 2 turn")
-                        board = move_piece(board, start, end)
-                        ui.update_board(board)
+                        play = move_piece(play, start, end, 1)
+                        ui.update_board(play)
                         ui.turn = 1
-                        finish, winner = end_game(board, 1, 2)
+                        finish, winner = end_game(play, 1, 2)
                         if finish:
                             ui.default_result = winner
                             ui.state = "end"
-                            break
-                        print("Player 1 turn")
+
+                        print("\nPlayer 1 turn")
 
                 except Exception as e:
                     print("Error:", e)
-
-            elif command == "show":
-                print(board)
 
             else:
                 print("Unknown command")
@@ -108,8 +126,8 @@ def start_cli(ui):
 
 # --- RUN GAME ---
 board = build_board()
-ui = GameUI(board, "Checkers")
+interface = GameUI(board, "Checkers")
 
-start_cli(ui)
+start_cli(interface)
 
-ui.run()
+interface.run()

@@ -9,7 +9,7 @@ class GameUI(arcade.Window):
         super().__init__(WINDOW_SIZE, WINDOW_SIZE, title)
         arcade.set_background_color(arcade.color.IVORY)
         self.board = board
-
+        self.should_close = False
         self.state="menu"
         self.mode = None
         self.default_result = None
@@ -44,6 +44,10 @@ class GameUI(arcade.Window):
             self.draw_board()
             self.draw_pieces()
             self.draw_end()
+
+    def on_update(self, delta_time):
+        if self.should_close:
+            self.close()
 
     def draw_menu(self):
         arcade.draw_text(
@@ -96,7 +100,16 @@ class GameUI(arcade.Window):
             self.width // 2,
             self.height // 2 -50,
             arcade.color.BLACK,
-            40,
+            30,
+            anchor_x="center"
+
+        )
+        arcade.draw_text(
+            "Input 'menu' to return to the Menu",
+            self.width // 2,
+            self.height // 2 - 125,
+            arcade.color.BLACK,
+            30,
             anchor_x="center"
 
         )

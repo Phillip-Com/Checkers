@@ -48,7 +48,7 @@ def end_game(self, piece, two_piece):
     legal_moves = all_moves(self, piece)
     legal_moves += all_moves(self, two_piece)
 
-    if legal_moves == []:
+    if not legal_moves:
         if piece == 1:
             winner = "Blue"
         else:
@@ -102,7 +102,7 @@ def nec_capture(board, player):
     return False
 
 # Function to move a piece
-def move_piece(board, position, target):
+def move_piece(board, position, target, user):
     pos_x, pos_y = convert_cords(position)
     tar_x, tar_y = convert_cords(target)
 
@@ -143,7 +143,7 @@ def move_piece(board, position, target):
         while capture_from(board, current_x, current_y):
             next_moves = move_options(board, coord_to_string(current_x, current_y))
 
-            if next_moves.__len__() > 1:
+            if next_moves.__len__() > 1 and user != 0:
                 print("More then one Jump choice")
                 count = -1
 
@@ -154,8 +154,7 @@ def move_piece(board, position, target):
 
 
                 command = input(">> ").strip().lower()
-                moves = next_moves[int(command)]
-                next_x, next_y = moves[0],moves[1]
+                next_x, next_y = next_moves[int(command)]
 
             else:
                 next_moves = [(r,c) for r, c in next_moves if abs(r - current_x) == 2]
@@ -190,7 +189,7 @@ def capture_from(board, row, col):
     if piece == 0 or piece == 9:
         return False
 
-    direction = []
+    directions = []
 
     if piece == -1:
         directions = [(1, 1), (1, -1)]
@@ -205,9 +204,9 @@ def capture_from(board, row, col):
         if 0 <= cx < 8 and 0 <= cy < 8:
             if board[cx][cy] == 0:
                 mid = board[nx][ny]
-                if piece > 0 and mid < 0:
+                if piece > 0 > mid:
                     return True
-                if piece < 0 and mid > 0:
+                if piece < 0 < mid:
                     return True
 
     return False
@@ -249,9 +248,9 @@ def move_options(board, position):
 
             if board[cx][cy] == 0:
                 # enemy check
-                if piece > 0 and mid < 0:
+                if piece > 0 > mid:
                     cap_moves.append((cx, cy))
-                elif piece < 0 and mid > 0:
+                elif piece < 0 < mid:
                     cap_moves.append((cx, cy))
 
     if cap_moves:
@@ -259,13 +258,13 @@ def move_options(board, position):
 
     return moves
 
-# Function to convert coords to string
+# Function to convert cords to string
 def coord_to_string(row, col):
     return f"{x_coord[col]}{8-row}"
 
 # function to collect all current move options
 def all_moves(board, player):
-    all_moves = []
+    all_user_moves = []
 
     for row in range(8):
         for col in range(8):
@@ -274,9 +273,9 @@ def all_moves(board, player):
             if piece == 0 or piece == 9:
                 continue
 
-            if player > 0 and piece <= 0:
+            if player > 0 >= piece:
                 continue
-            if player < 0 and piece >= 0:
+            if player < 0 <= piece:
                 continue
 
             start = coord_to_string(row, col)
@@ -284,9 +283,9 @@ def all_moves(board, player):
 
             for (r, c) in moves:
                 end = coord_to_string(r, c)
-                all_moves.append((start, end, row, r))
+                all_user_moves.append((start, end, row, r))
 
-    return all_moves
+    return all_user_moves
 
 # Function to run computer moves
 def comp_moves(board, player=-1):
@@ -307,7 +306,7 @@ def comp_moves(board, player=-1):
 
     print(f"Computer moves: {start} -> {end}")
 
-    board = move_piece(board, start, end)
+    board = move_piece(board, start, end, 0)
 
     return board
 
