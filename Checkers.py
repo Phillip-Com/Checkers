@@ -37,11 +37,9 @@ def start_cli(ui):
                 ui.update_board(play)
                 print("---Board reset---\n\n")
 
-            elif command.startswith("player"):
+            elif command == "1" or command == "2":
                 try:
-                    _, number = command.split()
-
-                    if int(number) == 1:
+                    if int(command) == 1:
                         ui.mode = "1p"
                     else:
                         ui.mode = "2p"
@@ -67,6 +65,7 @@ def start_cli(ui):
             elif command.startswith("move"):
                 try:
                     checked = True
+                    start, end = None, None
                     while checked:
                         _, start, end = command.split()
                         check_x, check_y = convert_cords(start)

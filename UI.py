@@ -61,7 +61,7 @@ class GameUI(arcade.Window):
         )
 
         arcade.draw_text(
-            "Input 'player 1' for singleplayer",
+            "Input '1' for singleplayer",
             self.width // 2,
             self.height // 2 + 50,
             arcade.color.BLUE,
@@ -71,7 +71,7 @@ class GameUI(arcade.Window):
         )
 
         arcade.draw_text(
-            "Input 'player 2' for multiplayer",
+            "Input '2' for multiplayer",
             self.width//2,
             self.height // 2-50,
             arcade.color.RED,
@@ -114,7 +114,8 @@ class GameUI(arcade.Window):
 
         )
 
-    def draw_board(self):
+    @staticmethod
+    def draw_board():
         for row in range(BOARD_SIZE):
             for col in range(BOARD_SIZE):
                 if (row + col) % 2 == 0:
@@ -165,7 +166,8 @@ class GameUI(arcade.Window):
                     color
                 )
 
-    def draw_labels(self):
+    @staticmethod
+    def draw_labels():
         for col in range(BOARD_SIZE):
             arcade.draw_text(
                 chr(ord('A') + col),
