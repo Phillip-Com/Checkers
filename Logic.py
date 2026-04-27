@@ -1,7 +1,5 @@
 import numpy as np
 import random
-import os
-os.system('bash -c "ls -l"')
 print(np.__version__)
 x_coord = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
@@ -102,7 +100,7 @@ def nec_capture(board, player):
     return False
 
 # Function to move a piece
-def move_piece(board, position, target, user):
+def move_piece(board, position, target, user, jump_choice):
     pos_x, pos_y = convert_cords(position)
     tar_x, tar_y = convert_cords(target)
 
@@ -144,17 +142,10 @@ def move_piece(board, position, target, user):
             next_moves = move_options(board, coord_to_string(current_x, current_y))
 
             if next_moves.__len__() > 1 and user != 0:
-                print("More then one Jump choice")
-                count = -1
+                if jump_choice is None:
+                    raise ValueError("Multiple jumps available")
 
-                for x, y in next_moves:
-                    choices = coord_to_string(x,y)
-                    count = count + 1
-                    print(f"{count}: {choices}")
-
-
-                command = input(">> ").strip().lower()
-                next_x, next_y = next_moves[int(command)]
+                next_x, next_y = next_moves[jump_choice]
 
             else:
                 next_moves = [(r,c) for r, c in next_moves if abs(r - current_x) == 2]
@@ -306,7 +297,7 @@ def comp_moves(board, player=-1):
 
     print(f"Computer moves: {start} -> {end}")
 
-    board = move_piece(board, start, end, 0)
+    board = move_piece(board, start, end, 0, None)
 
     return board
 

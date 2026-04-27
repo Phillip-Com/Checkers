@@ -3,6 +3,44 @@ from UI import GameUI
 from Logic import build_board, move_piece, comp_moves, end_game, convert_cords
 import time
 
+class Game:
+    def __init__(self):
+        self.board = build_board()
+        self.turn = 1
+        self.mode = "1p"
+        self.state = "menu"
+        self.result = None
+
+    def reset(self):
+        self.board = build_board()
+        self.turn = 1
+        self.state = "game"
+        self.result = None
+
+    def move(self, start, end, jump_choice = None):
+        if self.state != "game":
+            raise ValueError("Game not active")
+
+        self.board = move_piece(self.board, start, end, self.turn, jump_choice)
+
+        finished, winner = end_game(self.board, self.turn, self.turn * 2)
+        if finished:
+            self.state = "end"
+            self.result = winner
+            return
+
+        self.turn *= -1
+
+        if self.mode == "1p" and self.turn == -1:
+            self.board = comp_moves(self.board, -1)
+
+            finished, winner = end_game(self.board, -1, -2)
+            if finished:
+                self.state = "end"
+                self.result = winner
+
+            self.turn = 1
+
 def start_cli(ui):
     def cli_loop():
         play = ui.board
@@ -79,7 +117,7 @@ def start_cli(ui):
                     if ui.turn == 1:
                         if ui.mode == "2p":
                             print("\nPlayer 2 Turn")
-                        play = move_piece(play, start, end, 1)
+                        play = move_piece(play, start, end, 1, None)
                         ui.update_board(play)
                         ui.turn = -1
 
@@ -104,7 +142,7 @@ def start_cli(ui):
                         if finish:
                             ui.default_result = winner
                             ui.state = "end"
-                        play = move_piece(play, start, end, 1)
+                        play = move_piece(play, start, end, 1, None)
                         ui.update_board(play)
                         ui.turn = 1
                         finish, winner = end_game(play, 1, 2)
