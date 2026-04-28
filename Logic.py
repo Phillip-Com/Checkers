@@ -143,7 +143,7 @@ def move_piece(board, position, target, user, jump_choice):
 
             if next_moves.__len__() > 1 and user != 0:
                 if jump_choice is None:
-                    raise ValueError("Multiple jumps available")
+                    raise ValueError("Double jump choice needed")
 
                 next_x, next_y = next_moves[jump_choice]
 

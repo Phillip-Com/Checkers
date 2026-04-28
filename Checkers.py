@@ -1,6 +1,6 @@
 import threading
 from UI import GameUI
-from Logic import build_board, move_piece, comp_moves, end_game, convert_cords
+from Logic import build_board, move_piece, comp_moves, end_game, convert_cords, all_moves, coord_to_string
 import time
 
 class Game:
@@ -48,6 +48,7 @@ def start_cli(ui):
         print("Checkers CLI ready!")
         print("Commands: "
               "\n\thelp | (Display this list of commands)"
+              "\n\thint | (Show what moves are available)"
               "\n\tmove A3 B4 | (Move a piece from start to target)"
               "\n\trestart | (Reset the board to starting position)"
               "\n\tmenu | (Return to the main menu)"
@@ -63,17 +64,11 @@ def start_cli(ui):
             elif command == "help":
                 print("Commands: "
                       "\n\thelp | (Display this list of commands)"
+                      "\n\thint | (Show what moves are available)"
                       "\n\tmove A3 B4 | (Move a piece from start to target)"
                       "\n\trestart | (Reset the board to starting position)"
                       "\n\tmenu | (Return to the main menu)"
                       "\n\tquit | (Stop the program)")
-
-            elif command == "restart":
-                ui.state = "game"
-                ui.turn = 1
-                play = build_board()
-                ui.update_board(play)
-                print("---Board reset---\n\n")
 
             elif command == "1" or command == "2":
                 try:
@@ -87,15 +82,35 @@ def start_cli(ui):
                 except Exception as e:
                     print("Error:", e)
 
+            elif ui.state != "game":
+                print("Game not started. Use the menu.")
+                continue
+
             elif command == "menu":
                 ui.state = "menu"
                 play = build_board()
                 ui.update_board(play)
                 ui.turn = 1
 
-            elif ui.state != "game":
-                print("Game not started. Use the menu.")
-                continue
+            elif command == "restart":
+                ui.state = "game"
+                ui.turn = 1
+                play = build_board()
+                ui.update_board(play)
+                print("---Board reset---\n\n")
+
+            elif command == "hint":
+                print("Available Moves:")
+                moves = all_moves(play, ui.turn)
+
+                capture_moves = [m for m in moves if abs(m[2] - m[3]) == 2]
+
+                if capture_moves:
+                    print("(Captures Required)")
+                    moves = capture_moves
+
+                for r, c, _, _ in moves:
+                    print(f">> {r} -> {c}")
 
             elif command == "show":
                 print(play)
